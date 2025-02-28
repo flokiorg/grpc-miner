@@ -63,7 +63,7 @@ func (w *workers) run(ctx context.Context, tid uint8, logger zerolog.Logger) {
 	blockhash, nonce, err := w.algo.Mine(w.stats, w.block, nonceRange, tid, w.quit)
 	if err != nil {
 		if !errors.Is(err, ErrMiningCancelled) && !errors.Is(err, ErrMiningCompleted) {
-			log.Error().Err(err).Msg("mining failed")
+			logger.Error().Err(err).Msg("mining failed")
 		}
 		return
 	}
@@ -83,7 +83,7 @@ func (w *workers) run(ctx context.Context, tid uint8, logger zerolog.Logger) {
 
 	ack, err := w.client.SubmitNonce(ctx, w.block, nonce)
 	if err != nil {
-		log.Error().Err(err).Msgf("b[%d] t[%d] ❌ failed submiting block.", w.block.Height, tid)
+		logger.Error().Err(err).Msgf("b[%d] t[%d] ❌ failed submiting block.", w.block.Height, tid)
 	} else {
 		headerBytes, _ := hex.DecodeString(ack.Header)
 		blockhash := sha256.DoubleSum256(headerBytes)
@@ -177,7 +177,7 @@ func (m *Miner) Run(ctx context.Context) {
 		if err == nil {
 			return
 		}
-		log.Error().Err(err).Msgf("failed")
+		m.logger.Error().Err(err).Msgf("failed")
 
 		if m.retryDelay < time.Minute {
 			if m.retryDelay == 0 {
