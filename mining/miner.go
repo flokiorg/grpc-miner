@@ -31,9 +31,10 @@ type Miner struct {
 	mu               sync.Mutex
 	logger           zerolog.Logger
 
-	acceptedBlocks uint32
-	cancel         context.CancelFunc
-	wg             sync.WaitGroup
+	acceptedBlocks      uint32
+	cancel              context.CancelFunc
+	wg                  sync.WaitGroup
+	previousBlockHeight int64
 }
 
 type workers struct {
@@ -154,6 +155,13 @@ func (m *Miner) processCandidate(parent context.Context, client ClientService, b
 		}
 	}
 
+	if m.previousBlockHeight != 0 && block.Height > m.previousBlockHeight && m.cfg.BlockSiesta > 0 {
+		m.logger.Info().Msgf("😴 Taking a siesta for %d secs", int(m.cfg.BlockSiesta.Seconds()))
+		time.Sleep(m.cfg.BlockSiesta)
+	}
+
+	m.previousBlockHeight = block.Height
+
 }
 
 func (m *Miner) start(parent context.Context, client ClientService, block *pb.CandidateBlock) {
@@ -191,18 +199,13 @@ func (m *Miner) Run(ctx context.Context) {
 
 	go client.Listen(ctx, m.candidateRequest, blocks)
 
-	var previousBlockHeight int64
 	for {
 		select {
 		case block := <-blocks:
 			if m.cfg.MineOnce && atomic.LoadUint32(&m.acceptedBlocks) > 0 {
 				return
 			}
-			if previousBlockHeight != 0 && block.Height > previousBlockHeight && m.cfg.BlockSiesta > 0 {
-				m.logger.Info().Msgf("😴 Taking a siesta for %d secs", int(m.cfg.BlockSiesta.Seconds()))
-				time.Sleep(m.cfg.BlockSiesta)
-			}
-			previousBlockHeight = block.Height
+
 			m.start(ctx, client, block)
 
 		case <-ctx.Done():
