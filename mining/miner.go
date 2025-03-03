@@ -191,6 +191,7 @@ func (m *Miner) Run(ctx context.Context) {
 
 	go client.Listen(ctx, m.candidateRequest, blocks)
 
+	var previousBlockHeight int64
 	for {
 		select {
 		case block := <-blocks:
@@ -198,6 +199,11 @@ func (m *Miner) Run(ctx context.Context) {
 				return
 			}
 			m.logger.Info().Msgf("! block received %d", block.Height)
+			if previousBlockHeight != 0 && block.Height > previousBlockHeight && m.cfg.BlockSiesta > 0 {
+				previousBlockHeight = block.Height
+				m.logger.Info().Msgf("😴 Taking a siesta for %d secs", int(m.cfg.BlockSiesta.Seconds()))
+				time.Sleep(m.cfg.BlockSiesta)
+			}
 			m.start(ctx, client, block)
 
 		case <-ctx.Done():

@@ -24,4 +24,5 @@ type Config struct {
 	Generate         int           `long:"generate" description:"Number of blocks to generate (testnet only)"`
 	MineOnce         bool          `long:"mineonce" description:"Mine only blocks and exit after one cycle"`
 	CoinbaseScript   string        `short:"s" long:"coinbaseScript" description:"Custom Coinbase script in the format <left-bytes>:<text>:<right-bytes>"`
+	BlockSiesta      time.Duration `short:"b" long:"blockSistea" description:"Pause duration between mined blocks"`
 }
