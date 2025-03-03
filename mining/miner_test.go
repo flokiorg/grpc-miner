@@ -32,7 +32,7 @@ func init() {
 type clientMockSuccess struct {
 }
 
-func (cs *clientMockSuccess) SubmitNonce(ctx context.Context, validBlock *pb.CandidateBlock, nonce uint32) (*pb.AckBlockSubmited, error) {
+func (cs *clientMockSuccess) SubmitNonce(ctx context.Context, validBlock *pb.CandidateBlock, nonce uint32, maxRetries int, maxBackoffSeconds float64) (*pb.AckBlockSubmited, error) {
 
 	buff := bytes.NewBuffer(validBlock.Block)
 	block := &wire.MsgBlock{}
@@ -56,7 +56,7 @@ func (cs *clientMockSuccess) SubmitNonce(ctx context.Context, validBlock *pb.Can
 type clientMockFail struct {
 }
 
-func (cs *clientMockFail) SubmitNonce(ctx context.Context, validBlock *pb.CandidateBlock, nonce uint32) (*pb.AckBlockSubmited, error) {
+func (cs *clientMockFail) SubmitNonce(ctx context.Context, validBlock *pb.CandidateBlock, nonce uint32, maxRetries int, maxBackoffSeconds float64) (*pb.AckBlockSubmited, error) {
 	return nil, errors.New("unknown error")
 }
 
@@ -163,6 +163,44 @@ func TestStartMining(t *testing.T) {
 		miner.start(ctx, &clientMockSuccess{}, block)
 		time.Sleep(time.Second * 5)
 	}
+
+	if miner.acceptedBlocks != 1 {
+		t.Fatalf("unexpected mining result, block exepcted=%d, got=%d", 1, miner.acceptedBlocks)
+	}
+
+}
+
+func TestMineWithIssue(t *testing.T) {
+
+	hashAlgo, err := algo.Parse("scrypt_cpu")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	request := &pb.CandidateRequest{
+		Xpub: "xpubxxx",
+	}
+
+	cfg := &common.Config{
+		PoolServer:       "localhost:9900",
+		SlowDownDuration: time.Second * 60,
+		Threads:          uint8(runtime.NumCPU()),
+		MineOnce:         true,
+	}
+
+	blocks := []*pb.CandidateBlock{
+		createCandidateBlock(t, "207fffff"), // easy
+		createCandidateBlock(t, "207fffff"), // easy
+	}
+
+	miner := NewMiner(cfg, hashAlgo, request, log.Logger)
+
+	ctx, _ := context.WithTimeout(context.Background(), time.Second*60)
+	for _, block := range blocks {
+		miner.start(ctx, &clientMockFail{}, block)
+	}
+
+	miner.wg.Wait()
 
 	if miner.acceptedBlocks != 1 {
 		t.Fatalf("unexpected mining result, block exepcted=%d, got=%d", 1, miner.acceptedBlocks)

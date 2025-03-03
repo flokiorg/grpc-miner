@@ -26,7 +26,6 @@ type Client struct {
 
 // NewClient initializes a new gRPC client
 func NewClient(poolserver string, dialTimeout time.Duration) (*Client, error) {
-	log.Info().Msg("Initializing gRPC client...")
 
 	conn, err := grpc.NewClient(poolserver, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -47,7 +46,7 @@ func NewClient(poolserver string, dialTimeout time.Duration) (*Client, error) {
 		return nil, fmt.Errorf("health check failed: %v", err)
 	}
 
-	log.Info().Msg("gRPC client initialized successfully")
+	log.Info().Msg("client initialized successfully")
 	return &Client{
 		conn:   conn,
 		stream: pb.NewCandidateStreamClient(conn),
@@ -123,13 +122,11 @@ func (c *Client) Listen(ctx context.Context, request *pb.CandidateRequest, block
 }
 
 // SubmitNonce waits if `Listen` is retrying, then submits the nonce
-func (c *Client) SubmitNonce(ctx context.Context, candidateBlock *pb.CandidateBlock, nonce uint32) (*pb.AckBlockSubmited, error) {
+func (c *Client) SubmitNonce(ctx context.Context, block *pb.CandidateBlock, nonce uint32, maxRetries int, maxBackoffSeconds float64) (*pb.AckBlockSubmited, error) {
 	var attempt int
-	maxRetries := 5 // Set a limit to avoid infinite loops
 
-	// Updated logging using block height
 	log.Info().
-		Str("block", fmt.Sprintf("%v", candidateBlock.Height)).
+		Str("block", fmt.Sprintf("%v", block.Height)).
 		Uint32("nonce", nonce).
 		Msg("Submitting nonce...")
 
@@ -149,12 +146,12 @@ func (c *Client) SubmitNonce(ctx context.Context, candidateBlock *pb.CandidateBl
 
 		// Prevent multiple retry attempts
 		c.retryMutex.Lock()
-		resp, err := c.stream.SubmitValidBlock(ctx, &pb.ValidBlock{Template: candidateBlock, Nonce: int64(nonce)})
+		resp, err := c.stream.SubmitValidBlock(ctx, &pb.ValidBlock{Template: block, Nonce: int64(nonce)})
 		c.retryMutex.Unlock()
 
 		if err == nil {
 			log.Info().
-				Str("block", fmt.Sprintf("%v", candidateBlock.Height)).
+				Str("block", fmt.Sprintf("%v", block.Height)).
 				Uint32("nonce", nonce).
 				Msg("Nonce submitted successfully")
 			return resp, nil
@@ -164,7 +161,7 @@ func (c *Client) SubmitNonce(ctx context.Context, candidateBlock *pb.CandidateBl
 		attempt++
 		if attempt > maxRetries {
 			log.Error().
-				Str("block", fmt.Sprintf("%v", candidateBlock.Height)).
+				Str("block", fmt.Sprintf("%v", block.Height)).
 				Uint32("nonce", nonce).
 				Int("attempts", attempt).
 				Err(err).
@@ -173,9 +170,9 @@ func (c *Client) SubmitNonce(ctx context.Context, candidateBlock *pb.CandidateBl
 		}
 
 		// Calculate backoff time
-		backoff := time.Duration(math.Min(30, math.Pow(2, float64(attempt)))) * time.Second
+		backoff := time.Duration(math.Min(maxBackoffSeconds, math.Pow(2, float64(attempt)))) * time.Second
 		log.Warn().
-			Str("block", fmt.Sprintf("%v", candidateBlock.Height)).
+			Str("block", fmt.Sprintf("%v", block.Height)).
 			Uint32("nonce", nonce).
 			Int("attempts", attempt).
 			Dur("retry_after", backoff).

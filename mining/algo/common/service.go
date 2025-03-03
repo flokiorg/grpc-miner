@@ -11,5 +11,5 @@ import (
 )
 
 type ClientService interface {
-	SubmitNonce(context.Context, *pb.CandidateBlock, uint32) (*pb.AckBlockSubmited, error)
+	SubmitNonce(context.Context, *pb.CandidateBlock, uint32, int, float64) (*pb.AckBlockSubmited, error)
 }

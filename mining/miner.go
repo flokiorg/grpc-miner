@@ -135,7 +135,7 @@ func (m *Miner) processCandidate(parent context.Context, client ClientService, b
 		m.logger.Info().Msgf("b[%d] ✨ nonce:%d", block.Height, workers.nonce)
 		m.logger.Info().Msgf("b[%d] ✨ solved hash:%s", block.Height, workers.blockhash)
 
-		ack, err := client.SubmitNonce(parent, block, workers.nonce)
+		ack, err := client.SubmitNonce(parent, block, workers.nonce, m.cfg.MaxRetries, m.cfg.MaxBackoffSeconds)
 		if err != nil {
 			m.logger.Error().Err(err).Msgf("b[%d] ❌ failed submiting block.", block.Height)
 		} else {
@@ -198,12 +198,11 @@ func (m *Miner) Run(ctx context.Context) {
 			if m.cfg.MineOnce && atomic.LoadUint32(&m.acceptedBlocks) > 0 {
 				return
 			}
-			m.logger.Info().Msgf("! block received %d", block.Height)
 			if previousBlockHeight != 0 && block.Height > previousBlockHeight && m.cfg.BlockSiesta > 0 {
-				previousBlockHeight = block.Height
 				m.logger.Info().Msgf("😴 Taking a siesta for %d secs", int(m.cfg.BlockSiesta.Seconds()))
 				time.Sleep(m.cfg.BlockSiesta)
 			}
+			previousBlockHeight = block.Height
 			m.start(ctx, client, block)
 
 		case <-ctx.Done():

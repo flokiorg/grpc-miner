@@ -29,6 +29,8 @@ import (
 const (
 	defaultPoolPort       = 80
 	defaultConfigFilename = "fminer.conf"
+	defaultMaxRetries     = 5
+	defaultMaxBackoffSecs = 30.0
 )
 
 var (
@@ -118,6 +120,20 @@ func main() {
 			BytesRight: int64(bRight),
 			Text:       cbsText,
 		}
+	}
+
+	// No validation needed if slowDownDuration is zero; it disables the slowdown feature.
+	if cfg.SlowDownDuration < 0 {
+		exitWithError(fmt.Sprintf("Invalid slowDownDuration: %v. It cannot be negative.", cfg.SlowDownDuration), nil)
+	}
+
+	// Validate Retry Settings
+	if opt := parser.FindOptionByLongName("retryMaxAttempts"); !optionDefined(opt) {
+		cfg.MaxRetries = defaultMaxRetries
+	}
+
+	if opt := parser.FindOptionByLongName("retryMaxBackoff"); !optionDefined(opt) {
+		cfg.MaxBackoffSeconds = defaultMaxBackoffSecs
 	}
 
 	fmt.Println("\nConfiguration:")
