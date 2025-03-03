@@ -31,10 +31,9 @@ type Miner struct {
 	mu               sync.Mutex
 	logger           zerolog.Logger
 
-	acceptedBlocks      uint32
-	cancel              context.CancelFunc
-	wg                  sync.WaitGroup
-	previousBlockHeight int64
+	acceptedBlocks uint32
+	cancel         context.CancelFunc
+	wg             sync.WaitGroup
 }
 
 type workers struct {
@@ -155,36 +154,36 @@ func (m *Miner) processCandidate(parent context.Context, client ClientService, b
 		}
 	}
 
-	if m.previousBlockHeight != 0 && block.Height > m.previousBlockHeight && m.cfg.BlockSiesta > 0 {
-		m.logger.Info().Msgf("😴 Taking a siesta for %d secs", int(m.cfg.BlockSiesta.Seconds()))
-		time.Sleep(m.cfg.BlockSiesta)
-	}
-
-	m.previousBlockHeight = block.Height
-
 }
 
 func (m *Miner) start(parent context.Context, client ClientService, block *pb.CandidateBlock) {
 	select {
 	case <-parent.Done():
-		log.Info().Msg("Listen stopped by context cancellation")
+		log.Info().Msg("failed to start, context cancelled")
 		return
 	default:
 
 	}
 
 	m.mu.Lock()
-	if m.cancel != nil {
-		m.cancel()
-		m.wg.Wait()
-	}
-
 	ctx, cancel := context.WithCancel(parent)
 	m.cancel = cancel
 	m.mu.Unlock()
 
 	m.wg.Add(1)
 	go m.processCandidate(ctx, client, block)
+}
+
+func (m *Miner) stop() {
+
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if m.cancel != nil {
+		m.cancel()
+		m.wg.Wait()
+	}
+
 }
 
 func (m *Miner) Run(ctx context.Context) {
@@ -199,12 +198,22 @@ func (m *Miner) Run(ctx context.Context) {
 
 	go client.Listen(ctx, m.candidateRequest, blocks)
 
+	var previousBlockHeight int64
 	for {
 		select {
 		case block := <-blocks:
 			if m.cfg.MineOnce && atomic.LoadUint32(&m.acceptedBlocks) > 0 {
 				return
 			}
+
+			m.stop()
+
+			if previousBlockHeight != 0 && block.Height > previousBlockHeight && m.cfg.BlockSiesta > 0 {
+				m.logger.Info().Msgf("😴 Taking a siesta for %d secs", int(m.cfg.BlockSiesta.Seconds()))
+				time.Sleep(m.cfg.BlockSiesta)
+			}
+
+			previousBlockHeight = block.Height
 
 			m.start(ctx, client, block)
 

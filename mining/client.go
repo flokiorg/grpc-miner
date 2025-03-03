@@ -133,7 +133,7 @@ func (c *Client) SubmitNonce(ctx context.Context, block *pb.CandidateBlock, nonc
 	for {
 		select {
 		case <-ctx.Done():
-			log.Warn().Msg("SubmitNonce stopped due to context cancellation")
+			log.Warn().Msg("block submission halted due to context cancellation")
 			return nil, ctx.Err()
 
 		case <-c.retryChan: // Wait if Listen is retrying
@@ -153,7 +153,7 @@ func (c *Client) SubmitNonce(ctx context.Context, block *pb.CandidateBlock, nonc
 			log.Info().
 				Str("block", fmt.Sprintf("%v", block.Height)).
 				Uint32("nonce", nonce).
-				Msg("Nonce submitted successfully")
+				Msg("block submitted successfully")
 			return resp, nil
 		}
 
@@ -166,7 +166,7 @@ func (c *Client) SubmitNonce(ctx context.Context, block *pb.CandidateBlock, nonc
 				Int("attempts", attempt).
 				Err(err).
 				Msg("Failed to submit nonce after multiple attempts")
-			return nil, fmt.Errorf("submit nonce failed after %d attempts: %v", attempt, err)
+			return nil, fmt.Errorf("block submission failed after %d attempts: %v", attempt, err)
 		}
 
 		// Calculate backoff time
@@ -177,7 +177,7 @@ func (c *Client) SubmitNonce(ctx context.Context, block *pb.CandidateBlock, nonc
 			Int("attempts", attempt).
 			Dur("retry_after", backoff).
 			Err(err).
-			Msg("Retrying nonce submission...")
+			Msg("Retrying block submission...")
 
 		time.Sleep(backoff) // Wait before retrying
 	}
