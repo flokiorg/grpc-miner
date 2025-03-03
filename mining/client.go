@@ -20,15 +20,14 @@ import (
 type Client struct {
 	conn       *grpc.ClientConn
 	stream     pb.CandidateStreamClient
-	retryChan  chan struct{} // Shared retry signal
-	retryMutex sync.Mutex    // Prevents multiple goroutines from retrying at the same time
+	retryChan  chan struct{}
+	retryMutex sync.Mutex
 }
 
 // NewClient initializes a new gRPC client
 func NewClient(poolserver string, dialTimeout time.Duration) (*Client, error) {
 	log.Info().Msg("Initializing gRPC client...")
 
-	// Establish connection
 	conn, err := grpc.NewClient(poolserver, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to connect to gRPC server")
@@ -37,7 +36,7 @@ func NewClient(poolserver string, dialTimeout time.Duration) (*Client, error) {
 
 	client := pb.NewHealthClient(conn)
 
-	// Health check (no retries here)
+	// Health check
 	ctx, cancel := context.WithTimeout(context.Background(), dialTimeout)
 	defer cancel()
 
@@ -85,11 +84,11 @@ func (c *Client) Listen(ctx context.Context, request *pb.CandidateRequest, block
 			log.Warn().Dur("retry_after", backoff).Msg("Retrying stream open...")
 			time.Sleep(backoff)
 
-			continue // 🔄  retry opening stream
+			continue // retry opening stream
 		}
 
 		log.Info().Msg("Listening for candidate blocks...")
-		attempt = 0 // ✅ Reset retry counter on success
+		attempt = 0 //  Reset retry counter on success
 
 	loop:
 		for {
@@ -113,7 +112,7 @@ func (c *Client) Listen(ctx context.Context, request *pb.CandidateRequest, block
 					log.Warn().Dur("retry_after", backoff).Msg("Retrying stream open...")
 					time.Sleep(backoff)
 
-					break loop // 🔄 Restart connection loop
+					break loop //  Restart connection loop
 				}
 
 				log.Info().Str("block", fmt.Sprintf("%v", input.Height)).Msg("Received candidate block")

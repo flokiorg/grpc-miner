@@ -60,7 +60,7 @@ func (cs *clientMockFail) SubmitNonce(ctx context.Context, validBlock *pb.Candid
 	return nil, errors.New("unknown error")
 }
 
-func createCandidateBlock(t *testing.T) *pb.CandidateBlock {
+func createCandidateBlock(t *testing.T, diff string) *pb.CandidateBlock {
 	header := "0000e020b4565882aae2f7f6e1fd2b0f2f5501e9f0c7704705fe0100000000000000000002311949e9666728866d73868fccb205dd1fc6e577cfbfaa45ac36936b196c8f9e133567e4c402177fb13bbd"
 
 	headerBytes, err := hex.DecodeString(header)
@@ -78,7 +78,7 @@ func createCandidateBlock(t *testing.T) *pb.CandidateBlock {
 	msgBlock.Serialize(buff)
 
 	return &pb.CandidateBlock{
-		Bits:         "207fffff",
+		Bits:         diff,
 		Header:       header,
 		Height:       999999,
 		Merkleroot:   "----",
@@ -95,7 +95,7 @@ func TestMiningBlocks(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	block := createCandidateBlock(t)
+	block := createCandidateBlock(t, "207fffff")
 
 	request := &pb.CandidateRequest{
 		Xpub: "xpubxxx",
@@ -133,7 +133,7 @@ func TestMiningBlocks(t *testing.T) {
 	}
 }
 
-func TestRunMining(t *testing.T) {
+func TestStartMining(t *testing.T) {
 
 	hashAlgo, err := algo.Parse("scrypt_cpu")
 	if err != nil {
@@ -151,7 +151,21 @@ func TestRunMining(t *testing.T) {
 		MineOnce:         true,
 	}
 
+	blocks := []*pb.CandidateBlock{
+		createCandidateBlock(t, "1935a7f1"), // hard
+		createCandidateBlock(t, "207fffff"), // easy
+	}
+
 	miner := NewMiner(cfg, hashAlgo, request, log.Logger)
-	miner.Run(context.Background())
+
+	ctx, _ := context.WithTimeout(context.Background(), time.Second*10)
+	for _, block := range blocks {
+		miner.start(ctx, &clientMockSuccess{}, block)
+		time.Sleep(time.Second * 5)
+	}
+
+	if miner.acceptedBlocks != 1 {
+		t.Fatalf("unexpected mining result, block exepcted=%d, got=%d", 1, miner.acceptedBlocks)
+	}
 
 }

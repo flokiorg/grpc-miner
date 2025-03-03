@@ -157,6 +157,14 @@ func (m *Miner) processCandidate(parent context.Context, client ClientService, b
 }
 
 func (m *Miner) start(parent context.Context, client ClientService, block *pb.CandidateBlock) {
+	select {
+	case <-parent.Done():
+		log.Info().Msg("Listen stopped by context cancellation")
+		return
+	default:
+
+	}
+
 	m.mu.Lock()
 	if m.cancel != nil {
 		m.cancel()
