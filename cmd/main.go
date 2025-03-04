@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"os"
 
@@ -31,6 +32,7 @@ const (
 	defaultConfigFilename = "fminer.conf"
 	defaultMaxRetries     = 5
 	defaultMaxBackoffSecs = 30.0
+	defaultPoolTimeout    = time.Second * 30
 )
 
 var (
@@ -134,6 +136,11 @@ func main() {
 
 	if opt := parser.FindOptionByLongName("retryMaxBackoff"); !optionDefined(opt) {
 		cfg.MaxBackoffSeconds = defaultMaxBackoffSecs
+	}
+
+	// Validate grpc timeout
+	if opt := parser.FindOptionByLongName("timeout"); !optionDefined(opt) {
+		cfg.PoolTimeout = defaultPoolTimeout
 	}
 
 	fmt.Println("\nConfiguration:")

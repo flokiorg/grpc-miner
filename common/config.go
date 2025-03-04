@@ -19,7 +19,7 @@ type Config struct {
 	Xpub              string        `short:"x" long:"xpub" description:"xpub address (ignored if --miningaddr is set)"`
 	TestNet           bool          `long:"testnet" description:"Use testnet instead of mainnet"`
 	PoolServer        string        `short:"p" long:"pool" description:"Endpoint for the pool server host:port"`
-	DialTimeout       time.Duration `short:"o" long:"timeout" default:"10s" description:"GRPC dial timeout (e.g., 5s, 1m)"`
+	PoolTimeout       time.Duration `short:"o" long:"timeout" default:"10s" description:"GRPC dial timeout (e.g., 5s, 1m)"`
 	SlowDownDuration  time.Duration `short:"z" long:"slowDownDuration" description:"Slow down duration in seconds between each new block"`
 	Generate          int           `long:"generate" description:"Number of blocks to generate (testnet only)"`
 	MineOnce          bool          `long:"mineonce" description:"Mine only blocks and exit after one cycle"`

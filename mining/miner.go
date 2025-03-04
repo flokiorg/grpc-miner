@@ -188,7 +188,7 @@ func (m *Miner) stop() {
 
 func (m *Miner) Run(ctx context.Context) {
 
-	client, err := NewClient(m.cfg.PoolServer, m.cfg.DialTimeout)
+	client, err := NewClient(m.cfg.PoolServer, m.cfg.PoolTimeout)
 	if err != nil {
 		log.Fatal().Err(err).Msgf("Failed to establish connection to the pool server at %s", m.cfg.PoolServer)
 	}
@@ -225,7 +225,7 @@ func (m *Miner) Run(ctx context.Context) {
 
 func (m *Miner) Generate(ctx context.Context, numBlocks int) {
 
-	client, err := NewClient(m.cfg.PoolServer, m.cfg.DialTimeout)
+	client, err := NewClient(m.cfg.PoolServer, m.cfg.PoolTimeout)
 	if err != nil {
 		log.Fatal().Err(err).Msgf("Failed to establish connection to the pool server at %s", m.cfg.PoolServer)
 	}
