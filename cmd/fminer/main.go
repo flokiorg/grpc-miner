@@ -52,6 +52,11 @@ func main() {
 		os.Exit(1)
 	}
 
+	if cfg.Version {
+		fmt.Println("Version:", utils.Version)
+		return
+	}
+
 	configFilepath, err := utils.GetFullPath(defaultConfigFilename)
 	if err != nil {
 		exitWithError("unexpected error", err)

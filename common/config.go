@@ -27,4 +27,5 @@ type Config struct {
 	BlockSiesta       time.Duration `long:"blockSiesta" description:"Pause duration between mined blocks"`
 	MaxRetries        int           `long:"retryMaxAttempts" description:"Maximum number of retry attempts before giving up"`
 	MaxBackoffSeconds float64       `long:"retryMaxBackoff" description:"Maximum backoff time in seconds before retrying"`
+	Version           bool          `short:"v" description:"Print version"`
 }

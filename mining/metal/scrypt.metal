@@ -1,7 +1,6 @@
 #include <metal_stdlib>
 
 using namespace metal;
-#include "/Users/sidehost/Documents/remote/diner/pkg/mining/metal/sha256.metal"
 
 
 

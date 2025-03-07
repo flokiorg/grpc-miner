@@ -1,6 +1,5 @@
 using namespace metal;
 
-#include "/Users/sidehost/Documents/remote/diner/pkg/mining/metal/sha256.metal"
 
 void hmac(
     thread sha256_context *ctx,

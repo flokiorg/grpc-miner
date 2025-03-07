@@ -2,10 +2,6 @@
 
 using namespace metal;
 
-#include "/Users/sidehost/Documents/remote/diner/pkg/mining/metal/scrypt/pbkdf2.metal"
-#include "/Users/sidehost/Documents/remote/diner/pkg/mining/metal/scrypt/mix.metal"
-
-
 void scrypt(
     thread sha256_context *ctx,      // SHA256 context
 

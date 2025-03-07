@@ -1,7 +1,6 @@
 #include <metal_stdlib>
 
 using namespace metal;
-#include "/Users/sidehost/Documents/remote/diner/pkg/mining/metal/scrypt/hmac.metal"
 
 void pbkdf2(
     thread sha256_context *ctx,    // SHA256 context
