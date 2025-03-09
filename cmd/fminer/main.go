@@ -176,13 +176,10 @@ func main() {
 
 	miner := mining.NewMiner(&cfg, hashAlgo, request, logger)
 
-	if !cfg.TestNet {
-		miner.Run(context.Background())
-	} else if cfg.TestNet && cfg.Generate > 0 {
+	if cfg.TestNet && cfg.Generate > 0 {
 		miner.Generate(context.Background(), cfg.Generate)
-	} else if cfg.TestNet {
-		fmt.Print("[error] unkown command\n\n")
-		parser.WriteHelp(os.Stdout)
+	} else {
+		miner.Run(context.Background())
 	}
 
 }
