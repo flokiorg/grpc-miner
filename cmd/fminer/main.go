@@ -151,9 +151,6 @@ func main() {
 	fmt.Println("\nConfiguration:")
 	fmt.Printf("  Algorithm: %s\n", cfg.Algo)
 	fmt.Printf("  Threads: %d\n", cfg.Threads)
-	if cfg.Xpub != "" {
-		fmt.Printf("  Xpub: %s\n", cfg.Xpub)
-	}
 	if len(cfg.MiningAddrs) < 5 {
 		fmt.Printf("  MiningAddrs (%d): %v\n", len(cfg.MiningAddrs), cfg.MiningAddrs)
 	} else {
