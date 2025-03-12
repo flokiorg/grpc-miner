@@ -161,7 +161,6 @@ func main() {
 	}
 	fmt.Printf("  TestNet: %v\n", cfg.TestNet)
 	fmt.Printf("  Pool: %s\n", cfg.PoolServer)
-	fmt.Printf("  SlowDownDuration: %s\n", cfg.SlowDownDuration)
 	fmt.Print("\n\n")
 
 	logger := utils.CreateFileLogger(filepath.Join(logDir, "fminer.log"))
