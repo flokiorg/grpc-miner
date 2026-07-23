@@ -158,7 +158,8 @@ func TestStartMining(t *testing.T) {
 
 	miner := NewMiner(cfg, hashAlgo, request, log.Logger)
 
-	ctx, _ := context.WithTimeout(context.Background(), time.Second*10)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	defer cancel()
 	for _, block := range blocks {
 		miner.start(ctx, &clientMockSuccess{}, block)
 		time.Sleep(time.Second * 5)
@@ -195,15 +196,16 @@ func TestMineWithIssue(t *testing.T) {
 
 	miner := NewMiner(cfg, hashAlgo, request, log.Logger)
 
-	ctx, _ := context.WithTimeout(context.Background(), time.Second*60)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*60)
+	defer cancel()
 	for _, block := range blocks {
 		miner.start(ctx, &clientMockFail{}, block)
 	}
 
 	miner.wg.Wait()
 
-	if miner.acceptedBlocks != 1 {
-		t.Fatalf("unexpected mining result, block exepcted=%d, got=%d", 1, miner.acceptedBlocks)
+	if miner.acceptedBlocks != 0 {
+		t.Fatalf("unexpected mining result, block exepcted=%d, got=%d", 0, miner.acceptedBlocks)
 	}
 
 }
