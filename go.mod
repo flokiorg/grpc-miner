@@ -1,6 +1,6 @@
 module github.com/flokiorg/grpc-miner
 
-go 1.26.1
+go 1.26.5
 
 require (
 	github.com/flokiorg/go-flokicoin v0.26.0-alpha
