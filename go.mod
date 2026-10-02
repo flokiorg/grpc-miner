@@ -3,7 +3,7 @@ module github.com/flokiorg/grpc-miner
 go 1.26.8
 
 require (
-	github.com/flokiorg/go-flokicoin v0.26.2
+	github.com/flokiorg/go-flokicoin v0.26.3
 	github.com/jessevdk/go-flags v1.6.1
 	github.com/rs/zerolog v1.34.0
 	google.golang.org/grpc v1.84.0
