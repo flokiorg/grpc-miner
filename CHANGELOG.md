@@ -4,6 +4,17 @@
 
 ### Changed
 
+- Built with Go 1.26.8, up from 1.26.5, which closes four reachable stdlib
+  vulnerabilities (GO-2026-6218 `net/url`, GO-2026-6090 `crypto/tls`,
+  GO-2026-5972 `encoding/asn1`, GO-2026-5026 `net/http`).
+- Updated every flokiorg dependency to its current release. `google.golang.org/grpc` moved to the
+  current release, taking govulncheck from two reachable findings to none.
+- The release now publishes a multi-arch container image to
+  `ghcr.io/flokiorg/grpc-miner`, and every push to the default branch publishes an
+  `:edge` image.
+
+### Changed
+
 - Built with Go 1.26.5. (#3)
 
 ## [0.1.5-beta]
