@@ -5,8 +5,8 @@ github.com/decred/dcrd/crypto/blake256 v1.1.0 h1:zPMNGQCm0g4QTY27fOCorQW7EryeQ/U
 github.com/decred/dcrd/crypto/blake256 v1.1.0/go.mod h1:2OfgNZ5wDpcsFmHmCK5gZTPcCXqlm2ArzUIkw9czNJo=
 github.com/decred/dcrd/dcrec/secp256k1/v4 v4.4.0 h1:NMZiJj8QnKe1LgsbDayM4UoHwbvwDRwnI3hwNaAHRnc=
 github.com/decred/dcrd/dcrec/secp256k1/v4 v4.4.0/go.mod h1:ZXNYxsqcloTdSy/rNShjYzMhyjf0LaoftYK0p+A3h40=
-github.com/flokiorg/go-flokicoin v0.26.2 h1:80NFZ8RJrA11iiinS1FamNHaPn/FH1yzWahQE0ypWBo=
-github.com/flokiorg/go-flokicoin v0.26.2/go.mod h1:HBUjxuYeKl+yHuYHxLWpzniiHTmh99Im7T6cB/BdL7g=
+github.com/flokiorg/go-flokicoin v0.26.3 h1:tVpG2ujKQs4w6DJmLG0rArqWJ1Qp9inFoHwnL9xX+1k=
+github.com/flokiorg/go-flokicoin v0.26.3/go.mod h1:CCRytgFUI+mK55DZB0cVmiQWPDD93L2WwUjH6HQyR3Q=
 github.com/godbus/dbus/v5 v5.0.4/go.mod h1:xhWf0FNVPg57R7Z0UbKHbJfkEywrmjJnf7w5xrFpKfA=
 github.com/golang/protobuf v1.5.4 h1:i7eJL8qZTpSEXOPTxNKhASYpMn+8e5Q6AdndVa1dWek=
 github.com/golang/protobuf v1.5.4/go.mod h1:lnTiLA8Wa4RWRcIUkrtSVa5nRhsEGBg48fD6rSs7xps=
