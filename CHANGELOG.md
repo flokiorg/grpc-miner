@@ -4,7 +4,7 @@
 
 ### Changed
 
-- Updates `go-flokicoin` to v0.26.4-rc.1, taking the latest Flokicoin library.
+- Updates `go-flokicoin` to v0.26.4-rc.1, taking the latest Flokicoin library. (#8)
 
 ## [0.1.6]
 
