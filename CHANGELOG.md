@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.7-rc.1]
+
+### Changed
+
+- Updates `go-flokicoin` to v0.26.4-rc.1, taking the latest Flokicoin library.
+
 ## [0.1.6]
 
 ### Changed
@@ -12,10 +18,6 @@
 - The release now publishes a multi-arch container image to
   `ghcr.io/flokiorg/grpc-miner`, and every push to the default branch publishes an
   `:edge` image.
-
-### Changed
-
-- Built with Go 1.26.5. (#3)
 
 ## [0.1.5-beta]
 
