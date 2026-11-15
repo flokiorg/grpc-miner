@@ -1,0 +1,74 @@
+// Copyright (c) 2024 The Flokicoin developers
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
+syntax = "proto3";
+package proto;
+
+option go_package = "./pb";
+
+
+message CandidateBlock {
+    string bits = 1;
+    string header = 2;
+    int64 height = 3;
+    string merkleroot = 4;
+    int64 amount = 5;
+    int64 transactions = 6;
+    bytes block = 7;
+    string address = 8;
+    int64 version = 9;
+}
+
+message ValidBlock {
+    CandidateBlock template = 1;
+    int64 nonce = 2;
+}
+
+message AckBlockSubmited {
+    string header = 1;
+}
+
+
+service CandidateStream {
+    rpc Open(CandidateRequest) returns (stream CandidateBlock) {}
+    rpc SubmitValidBlock (ValidBlock) returns (AckBlockSubmited) {}
+    rpc Generate (GenerateRequest) returns (GenerateResponse) {}
+}
+
+message CoinbaseScript {
+    int64 bytesLeft = 1;
+    int64 bytesRight = 2;
+    string text = 3;
+}
+
+message CandidateRequest {
+    string xpub = 1;
+    repeated string miningAddrs = 2;
+    CoinbaseScript coinbaseScript = 3;
+}
+
+message GenerateRequest {
+    int32 numBlocks = 1; 
+}
+
+message GenerateResponse {
+    repeated string blocks = 1;
+}
+
+service Health {
+    rpc Check (HealthCheckRequest) returns (HealthCheckResponse);
+}
+  
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+    HealthStatus status = 1; // Health status enum
+}
+
+enum HealthStatus {
+    UNKNOWN = 0;       // Unknown status
+    SERVING = 1;       // Server is operational
+    NOT_SERVING = 2;   // Server is not operational
+    MAINTENANCE = 3;   // Server is under maintenance
+}
